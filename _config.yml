@@ -1,9 +1,9 @@
---
+--- 
+description: "Blog about software development, mainly in PHP, Android, Docker and Java and Product Development ideas based on my readings."
 excerpt_separator: ""
-pygments: true
 markdown: kramdown
-url: http://nilportugues.github.io
-title: Nil Portugués Calderó
-tagline: Software development and product development
-description: Blog about software development, mainly in PHP, Android, Docker and Java and Product Development ideas based on my readings.
 paginate: 5
+pygments: true
+tagline: "Software development and product development"
+title: "Nil Portugués Calderó"
+url: "http://nilportugues.github.io"
