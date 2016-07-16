@@ -41,6 +41,8 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 
 import com.nilportugues.simplewebapi.R;
+import com.nilportugues.simplewebapi.MyApplication;
+import com.nilportugues.simplewebapi.users.di.components.UserComponent;
 import com.nilportugues.simplewebapi.shared.ui.fragments.SharedBaseFragmentActivity;
 import com.nilportugues.simplewebapi.users.ui.adapters.tabs.TabsWithTextAdapter;
 import com.nilportugues.simplewebapi.users.ui.fragments.FragmentOne;
@@ -52,18 +54,20 @@ import java.util.List;
 
 public class TabsWithTextActivity extends BaseFragmentActivity {
 
+    @Inject UserPokemonList interactor;
+    @BindView(R.id.tabs1_view_pager) ViewPager viewPager;
+    @BindView(R.id.tabs1_layout) TabLayout tabLayout;
+    @BindView(R.id.tabs1_toolbar) Toolbar toolbar;
+    @BindView(R.id.tabs1_progressbar) ProgressBar progressBar;
+    
     protected List<Fragment> fragmentList = new ArrayList<>();
     protected List<String> titleList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
-
+        getComponent().inject(this);
+        removeActionBar();
         buildTabs();
     }
 
@@ -71,29 +75,29 @@ public class TabsWithTextActivity extends BaseFragmentActivity {
     protected int getLayoutId() {
         return R.layout.users_tabs_text;
     }
+    
+    public UserComponent getComponent() {
+        return ((MyApplication) getApplication()).getUserComponent();
+    }
+    
+   protected void removeActionBar() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+    }    
 
     protected void buildTabs() {
         buildTabsTitle();
         buildTabsContent();
-
-        ViewPager viewPager = (ViewPager) findViewById(R.id.tabs_text_view_pager);
-
+        
         TabsWithTextAdapter adapter = new TabsWithTextAdapter(getSupportFragmentManager(), fragmentList, titleList);
-        if (viewPager != null) {
-            viewPager.setAdapter(adapter);
-        }
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs_layout);
-        if (tabLayout != null) {
-            tabLayout.setupWithViewPager(viewPager);
-        }
+        viewPager.setAdapter(adapter);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     private void buildTabsTitle() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            toolbar.setTitle("Text Tabs");
-        }
+        toolbar.setTitle("Text Tabs");
     }
 
     private void buildTabsContent() {
@@ -446,6 +450,8 @@ import android.support.v7.widget.Toolbar;
 import android.widget.ProgressBar;
 
 import com.nilportugues.simplewebapi.R;
+import com.nilportugues.simplewebapi.MyApplication;
+import com.nilportugues.simplewebapi.users.di.components.UserComponent;
 import com.nilportugues.simplewebapi.users.interactors.UserPokemonList;
 import com.nilportugues.simplewebapi.users.ui.BaseFragmentActivity;
 
@@ -474,7 +480,11 @@ public class TabsWithTextActivity extends BaseFragmentActivity {
     protected int getLayoutId() {
         return R.layout.users_tabs_text;
     }
-
+    
+    public UserComponent getComponent() {
+        return ((MyApplication) getApplication()).getUserComponent();
+    }
+    
     protected void removeActionBar() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -612,7 +622,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import butterknife.ButterKnife;
-
 
 public abstract class BaseFragmentActivity extends AppCompatActivity
 {
