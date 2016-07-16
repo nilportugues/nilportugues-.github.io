@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 title: Android Tabs Refactoring, from spaghetti to MVP
 layout: post
 ---
