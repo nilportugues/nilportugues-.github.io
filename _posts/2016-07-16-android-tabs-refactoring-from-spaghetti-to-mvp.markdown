@@ -26,6 +26,10 @@ The following libraries are being used throught this post and understanding of t
 
 As a newcomer, I found that the approach to build a Tabs interface, while understanding, was not clean at all. I was having in the very same place business logic, views, fragments and adapters.
 
+This is what we're building:
+
+<div style="text-align:center"><img src="https://nilportugues.github.io/public/images/2016-07-tabs-refactor.png" height="500"></div>
+
 This is the original code: 
 
 **TabsWithTextActivity.java**
