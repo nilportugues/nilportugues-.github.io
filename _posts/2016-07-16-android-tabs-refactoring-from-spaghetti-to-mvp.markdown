@@ -2,6 +2,8 @@
 published: true
 title: Android Tabs Refactoring, from spaghetti to MVP
 layout: post
+tags: [android, dagger, butterknife, rxjava, rxandroid, reactive]
+categories: [Android, Refactoring]
 ---
 This post is about my learnings in Android so far. 
 
