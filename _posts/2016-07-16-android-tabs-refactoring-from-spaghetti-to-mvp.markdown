@@ -424,7 +424,6 @@ public class TabsWithTextPresenter implements TabsWithTextContract.Presenter
                 setList(strings);
             }
         });
-
     }
 
     @Override
@@ -438,7 +437,6 @@ public class TabsWithTextPresenter implements TabsWithTextContract.Presenter
 
 ```java
 package com.nilportugues.simplewebapi.users.ui.usetabstext;
-
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -519,7 +517,6 @@ import rx.Subscriber;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 
-
 public abstract class UseCase {
     protected Subscription subscription = Subscriptions.empty();
 
@@ -541,6 +538,68 @@ public abstract class UseCase {
         if (!subscription.isUnsubscribed()) {
             subscription.unsubscribe();
         }
+    }
+}
+```
+
+**BackgroundThread.java**
+
+```java
+package com.nilportugues.simplewebapi.shared.threads;
+
+import rx.Scheduler;
+
+public interface BackgroundThread {
+    Scheduler getScheduler();
+}
+```
+
+**IOThread.java**
+
+```java
+package com.nilportugues.simplewebapi.shared.executors;
+
+import com.nilportugues.simplewebapi.shared.threads.BackgroundThread;
+
+import rx.Scheduler;
+import rx.schedulers.Schedulers;
+
+public class IOThread implements BackgroundThread {
+    @Override
+    public Scheduler getScheduler() {
+        return Schedulers.io();
+    }
+}
+```
+
+**PostExecutionThread.java**
+
+```java
+package com.nilportugues.simplewebapi.shared.threads;
+
+import rx.Scheduler;
+
+public interface PostExecutionThread {
+    Scheduler getScheduler();
+}
+
+```
+
+**UIThread**
+
+```java
+package com.nilportugues.simplewebapi.shared.executors;
+
+import com.nilportugues.simplewebapi.shared.threads.BackgroundThread;
+import com.nilportugues.simplewebapi.shared.threads.PostExecutionThread;
+
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
+
+public class UIThread implements PostExecutionThread
+{
+    public Scheduler getScheduler() {
+        return AndroidSchedulers.mainThread();
     }
 }
 ```
