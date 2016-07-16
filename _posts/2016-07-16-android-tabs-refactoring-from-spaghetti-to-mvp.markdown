@@ -43,11 +43,12 @@ import android.support.v7.widget.Toolbar;
 import com.nilportugues.simplewebapi.R;
 import com.nilportugues.simplewebapi.MyApplication;
 import com.nilportugues.simplewebapi.users.di.components.UserComponent;
-import com.nilportugues.simplewebapi.shared.ui.fragments.SharedBaseFragmentActivity;
-import com.nilportugues.simplewebapi.users.ui.adapters.tabs.TabsWithTextAdapter;
-import com.nilportugues.simplewebapi.users.ui.fragments.FragmentOne;
-import com.nilportugues.simplewebapi.users.ui.fragments.FragmentThree;
-import com.nilportugues.simplewebapi.users.ui.fragments.FragmentTwo;
+import com.nilportugues.simplewebapi.users.interactors.UserPokemonList;
+import com.nilportugues.simplewebapi.users.ui.BaseFragmentActivity;
+import com.nilportugues.simplewebapi.users.ui.usetabstext.TabsWithTextAdapter;
+import com.nilportugues.simplewebapi.users.ui.userpager.FragmentOne;
+import com.nilportugues.simplewebapi.users.ui.userpager.FragmentThree;
+import com.nilportugues.simplewebapi.users.ui.userpager.FragmentTwo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,15 +61,16 @@ public class TabsWithTextActivity extends BaseFragmentActivity {
     @BindView(R.id.tabs1_toolbar) Toolbar toolbar;
     @BindView(R.id.tabs1_progressbar) ProgressBar progressBar;
     
-    protected List<Fragment> fragmentList = new ArrayList<>();
-    protected List<String> titleList = new ArrayList<>();
+    private List<Fragment> fragmentList = new ArrayList<>();
+    private List<String> titleList = new ArrayList<>();
+    private List<String> userPokemon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getComponent().inject(this);
         removeActionBar();
-        buildTabs();
+        loadPokemon();
     }
 
     @Override
@@ -80,20 +82,41 @@ public class TabsWithTextActivity extends BaseFragmentActivity {
         return ((MyApplication) getApplication()).getUserComponent();
     }
     
-   protected void removeActionBar() {
+    private void removeActionBar() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
     }    
 
-    protected void buildTabs() {
+    private void loadPokemon() {
+        progressBar.setVisibility(android.view.View.VISIBLE);
+        interactor.execute(new UIThread(), new IOThread(), new Subscriber<List<String>>() {
+
+            @Override
+            public void onCompleted() {
+                progressBar.setVisibility(android.view.View.GONE);
+                buildTabs();
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                progressBar.setVisibility(android.view.View.GONE);
+                mToolbar.setTitle("Could not load tabs");
+                buildView();
+            }
+
+            @Override
+            public void onNext(List<String> strings) {
+                setList(strings);
+            }
+        });    
+    }
+
+    private void buildTabs() {
         buildTabsTitle();
         buildTabsContent();
-        
-        TabsWithTextAdapter adapter = new TabsWithTextAdapter(getSupportFragmentManager(), fragmentList, titleList);
-        viewPager.setAdapter(adapter);
-        tabLayout.setupWithViewPager(viewPager);
+        buildView();
     }
 
     private void buildTabsTitle() {
@@ -101,15 +124,21 @@ public class TabsWithTextActivity extends BaseFragmentActivity {
     }
 
     private void buildTabsContent() {
-        this.buildFragment(new FragmentOne(), "ONE");
-        this.buildFragment(new FragmentTwo(), "TWO");
-        this.buildFragment(new FragmentThree(), "THREE");
+        this.buildFragment(new FragmentOne(), this.userPokemon.get(0));
+        this.buildFragment(new FragmentTwo(), this.userPokemon.get(1));
+        this.buildFragment(new FragmentThree(), this.userPokemon.get(2));
     }
 
     private void buildFragment(Fragment fragment, String title) {
         fragmentList.add(fragment);
         titleList.add(title);
     }
+    
+    private void buildView() {
+        TabsWithTextAdapter adapter = new TabsWithTextAdapter(mFragmentManager, fragmentList, titleList);
+        mViewPager.setAdapter(adapter);
+        mTabLayout.setupWithViewPager(mViewPager);
+    }    
 }
 ```
 
@@ -332,22 +361,22 @@ public class TabsWithTextView implements TabsWithTextContract.View{
         mPresenter = presenter;
     }
 
-    protected void buildTabsTitle() {
+    private void buildTabsTitle() {
         mToolbar.setTitle("Text Tabs");
     }
 
-    protected void buildTabsContent() {
+    private void buildTabsContent() {
         this.buildFragment(new FragmentOne(), this.userPokemon.get(0));
         this.buildFragment(new FragmentTwo(), this.userPokemon.get(1));
         this.buildFragment(new FragmentThree(), this.userPokemon.get(2));
     }
 
-    protected void buildFragment(Fragment fragment, String title) {
+    private void buildFragment(Fragment fragment, String title) {
         fragmentList.add(fragment);
         titleList.add(title);
     }
 
-    protected void buildView() {
+    private void buildView() {
         TabsWithTextAdapter adapter = new TabsWithTextAdapter(mFragmentManager, fragmentList, titleList);
         mViewPager.setAdapter(adapter);
         mTabLayout.setupWithViewPager(mViewPager);
@@ -485,14 +514,14 @@ public class TabsWithTextActivity extends BaseFragmentActivity {
         return ((MyApplication) getApplication()).getUserComponent();
     }
     
-    protected void removeActionBar() {
+    private void removeActionBar() {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.hide();
         }
     }
 
-    protected void buildTabs() {
+    private void buildTabs() {
         TabsWithTextView view = new TabsWithTextView(
                 getSupportFragmentManager(),
                 viewPager,
