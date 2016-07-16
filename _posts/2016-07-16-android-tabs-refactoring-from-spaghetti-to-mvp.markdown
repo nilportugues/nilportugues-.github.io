@@ -24,8 +24,66 @@ The following libraries are being used throught this post and understanding of t
 
 I have written my own boilerplate classes. Links to source code:
 
-- UseCase
-- BaseFragmentActivity
+**UseCase.java**
+```
+package com.nilportugues.simplewebapi.shared.interactors;
+
+import com.nilportugues.simplewebapi.shared.threads.BackgroundThread;
+import com.nilportugues.simplewebapi.shared.threads.PostExecutionThread;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.subscriptions.Subscriptions;
+
+
+public abstract class UseCase {
+    protected Subscription subscription = Subscriptions.empty();
+
+    protected abstract Observable buildUseCaseObservable();
+
+    @SuppressWarnings("unchecked")
+    public void execute(
+            PostExecutionThread postExecutionThread,
+            BackgroundThread backgroundThread,
+            Subscriber subscriber
+    ) {
+        this.subscription = this.buildUseCaseObservable()
+                .subscribeOn(backgroundThread.getScheduler())
+                .observeOn(postExecutionThread.getScheduler())
+                .subscribe(subscriber);
+    }
+
+    public void unsubscribe() {
+        if (!subscription.isUnsubscribed()) {
+            subscription.unsubscribe();
+        }
+    }
+}
+```
+
+**BaseFragmentActivity.java**
+```java
+package com.nilportugues.simplewebapi.shared.ui;
+
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+
+import butterknife.ButterKnife;
+
+
+public abstract class BaseFragmentActivity extends AppCompatActivity
+{
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(getLayoutId());
+        ButterKnife.bind(this);
+    }
+
+    abstract protected int getLayoutId();
+}
+```
 
 
 ## The problem
@@ -56,7 +114,7 @@ import com.nilportugues.simplewebapi.users.ui.fragments.FragmentTwo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TabsWithTextActivity extends SharedBaseFragmentActivity {
+public class TabsWithTextActivity extends BaseFragmentActivity {
 
     protected List<Fragment> fragmentList = new ArrayList<>();
     protected List<String> titleList = new ArrayList<>();
