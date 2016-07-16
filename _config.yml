@@ -3,7 +3,7 @@ description: "About PHP, Android, Docker, Java and product development"
 excerpt_separator: ""
 markdown: kramdown
 paginate: 5
-pygments: true
+rouge: true
 tagline: "Software & Product Development"
 title: "Nil Portugués"
 url: "http://nilportugues.github.io"
