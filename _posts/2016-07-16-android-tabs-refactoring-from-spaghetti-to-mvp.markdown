@@ -27,22 +27,32 @@ This is the original code:
 
 Yikes!
 
-## The solution: MVP
+## MVP
 After understanding how it works I went for the refactoring to MVP.  
 
 **Benefits**
-
-MVP approach offers very interesting benefits over the straight-forward approach:
-
-- Provides a clear separation of UI and business logic.
-    - View handles all classes extending from `android.view.View`. Also calls the adapters required to work with the Fragments.
-    - Presenter handles the logic on how the View behaves based on the business logic provided by a service.
-- Maintainability of UI increases due to almost no dependency on business logic. 
-- Mocking of the Presenter allows testing the View's behavior.
+- Maximize the amount of code that can be tested with automation. (Views are difficult to test.)
+- Separate business logic from UI logic to make the code easier to understand and maintain.
 
 **Downsides**
-
 - More code, whcih is always the case when wirting decoupled code.
+
+## Refactoring
+
+**View responsabilities**
+
+- View will be handling all classes extending from `android.view.View`. 
+- View will call the adapters required to work with the Fragments.
+
+**Presenter responsabilities**
+
+- Presenter will handle the logic on how the View behaves based on the business logic provided by a service.
+- Presenter gets the Model injected to be used. 
+
+**Model responsabilities**
+
+- Model retrieves data from a API or Database. We will fake this because it's out of the scope of this post.
+- Note: Model is a Service in our case, which we named `interactor`.
 
 ### Step 1: Contract between the Presenter and the View
 ### Step 2: Moving android.view.View to our new View class.
