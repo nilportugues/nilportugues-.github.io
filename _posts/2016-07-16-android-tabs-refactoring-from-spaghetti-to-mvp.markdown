@@ -648,6 +648,7 @@ public class UIThread implements PostExecutionThread
 ```
 
 **BaseFragmentActivity.java**
+
 ```java
 package com.nilportugues.simplewebapi.shared.ui;
 
