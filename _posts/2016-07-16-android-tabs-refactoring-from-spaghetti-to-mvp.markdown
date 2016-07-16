@@ -160,7 +160,13 @@ public class TabsWithTextAdapter extends FragmentPagerAdapter {
 
 **UserPokemonList.java (Model)**
 
-```
+The model uses Rx.Java and Rx.Android. It's out of the scope of this post to explain about these concepts.
+
+While this example does not make any API Calls or Database queries, this is the way to go. 
+
+Just don't block or do calculations on the UIThread, but on the IOThread and when done provide the data to UIThread.
+
+```java
 package com.nilportugues.simplewebapi.users.interactors;
 
 import com.nilportugues.simplewebapi.shared.interactors.UseCase;
@@ -186,7 +192,7 @@ public class UserPokemonList extends UseCase {
                     pokemon.add("Squirtle");
 
                     subscriber.onNext(pokemon);
-                    subscriber.onCompleted();
+                    subscriber.onCompleted(); //!IMPORTANT
                 }
             }
         );
