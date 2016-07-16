@@ -11,12 +11,22 @@ This post is about my learnings in Android so far.
 
 The following libraries are being used throught this post and understanding of them is required to make out the most of this piece of writing: 
 
+**Libraries**
+
 - `com.android.support:appcompat-v7:23.4.0`
 - `com.android.support:design:23.4.0`
 - `com.google.dagger:dagger:2.4`
 - `com.jakewharton:butterknife:8.1.0`
 - `io.reactivex:rxjava:1.1.6`
 - `io.reactivex:rxandroid:1.2.1`
+
+**Boilerplate code**
+
+I have written my own boilerplate classes. Links to source code:
+
+- UseCase
+- BaseFragmentActivity
+
 
 ## The problem
 
@@ -107,6 +117,10 @@ public class TabsWithTextActivity extends SharedBaseFragmentActivity {
 
 **TabsWithTextAdapter.java**
 
+This is just required to get the tabs working. It will load the fragments and allow us to manage them. 
+
+For more on this, read the official [documentation](https://developer.android.com/reference/android/support/v4/app/FragmentPagerAdapter.html).
+
 ```java
 package com.nilportugues.simplewebapi.users.ui.adapters.tabs;
 
@@ -144,9 +158,46 @@ public class TabsWithTextAdapter extends FragmentPagerAdapter {
 }
 ```
 
+**UserPokemonList.java (Model)**
 
-## MVP
-After understanding how it works I went for the refactoring to MVP.  
+```
+package com.nilportugues.simplewebapi.users.interactors;
+
+import com.nilportugues.simplewebapi.shared.interactors.UseCase;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import rx.Observable;
+import rx.Subscriber;
+
+public class UserPokemonList extends UseCase {
+
+    @Override
+    protected Observable buildUseCaseObservable() {
+        return Observable.create(
+            new Observable.OnSubscribe<List>() {
+
+                @Override
+                public void call(Subscriber<? super List> subscriber) {
+                    ArrayList<String> pokemon = new ArrayList<>();
+                    pokemon.add("Bulbasaur");
+                    pokemon.add("Charmander");
+                    pokemon.add("Squirtle");
+
+                    subscriber.onNext(pokemon);
+                    subscriber.onCompleted();
+                }
+            }
+        );
+    }
+}
+```
+
+
+## Model-View-Presenter
+
+After understanding how it works I went for the refactoring to Model-View-Presenter (MVP from now on).  
 
 **Benefits**
 
@@ -162,26 +213,10 @@ After understanding how it works I went for the refactoring to MVP.
 
 ## Refactoring
 
-**View responsabilities**
-
-- View will be handling all classes extending from `android.view.View`. 
-- View will call the adapters required to work with the Fragments.
-
-**Presenter responsabilities**
-
-- Presenter will handle the logic on how the View behaves based on the business logic provided by a service.
-- Presenter gets the Model injected to be used. 
-
-**Model responsabilities**
-
-- Model retrieves data from a API or Database. We will fake this because it's out of the scope of this post.
-- Note: Model is a Service in our case, which we named `interactor`.
-
 ### Step 1: Contract between the Presenter and the View
 
 ```java
 package com.nilportugues.simplewebapi.users.ui.usetabstext;
-
 
 import com.nilportugues.simplewebapi.shared.ui.PresenterContract;
 import com.nilportugues.simplewebapi.shared.ui.ViewContract;
@@ -214,9 +249,11 @@ public interface TabsWithTextContract {
 
 ### Step 2: Moving android.view.View to our new View class.
 
+- View will be handling all classes extending from `android.view.View`. 
+- View will call the adapters required to work with the Fragments.
+
 ```java
 package com.nilportugues.simplewebapi.users.ui.usetabstext;
-
 
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -244,7 +281,13 @@ public class TabsWithTextView implements TabsWithTextContract.View{
     private TabsWithTextContract.Presenter mPresenter;
     private List<String> userPokemon;
 
-    public TabsWithTextView(FragmentManager fragmentManager, ViewPager viewPager, TabLayout tabLayout, Toolbar toolbar, ProgressBar progressBar) {
+    public TabsWithTextView(
+        FragmentManager fragmentManager,
+        ViewPager viewPager,
+        TabLayout tabLayout,
+        Toolbar toolbar,
+        ProgressBar progressBar
+    ) {
         mFragmentManager = fragmentManager;
         mViewPager = viewPager;
         mTabLayout = tabLayout;
@@ -310,9 +353,13 @@ public class TabsWithTextView implements TabsWithTextContract.View{
 
 ### Step 3: Moving business logic to our new Presenter class.
 
+- Presenter will handle the logic on how the View behaves based on the business logic provided by a service.
+- Presenter gets the View injected. Enables us to use the Visitor pattern. 
+- Presenter gets the Model injected to be used. Model remains unchanged. 
+- The View will change depending on the Rx.Observable
+
 ```java
 package com.nilportugues.simplewebapi.users.ui.usetabstext;
-
 
 import com.nilportugues.simplewebapi.shared.executors.IOThread;
 import com.nilportugues.simplewebapi.shared.executors.UIThread;
@@ -324,13 +371,12 @@ import rx.Subscriber;
 
 public class TabsWithTextPresenter implements TabsWithTextContract.Presenter
 {
-
     private TabsWithTextContract.View mView;
     private UserPokemonList mInteractor;
 
     public TabsWithTextPresenter(UserPokemonList interactor, TabsWithTextContract.View view) {
         mView = view;
-        mView.setPresenter(this);
+        mView.setPresenter(this); //!IMPORTANT
         mInteractor = interactor;
     }
 
@@ -388,9 +434,7 @@ public class TabsWithTextPresenter implements TabsWithTextContract.Presenter
 }
 ```
 
-### Step 4: The Model
-
-### Step 5: Rewriting the TabActivity
+### Step 4: Rewriting the TabActivity
 
 ```java
 package com.nilportugues.simplewebapi.users.ui.usetabstext;
