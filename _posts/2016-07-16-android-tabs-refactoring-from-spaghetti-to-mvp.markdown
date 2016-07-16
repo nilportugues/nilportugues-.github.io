@@ -3,15 +3,17 @@ published: false
 title: Android Tabs Refactoring, from spaghetti to MVP
 layout: post
 ---
-This post is about my learnings in Android. 
+This post is about my learnings in Android so far. Disclaimer notice, I have been coding for Android only 2 weeks now (this been the second). 
 
-I have been coding for Android only 2 weeks now (this been the second). As a newcomer, I found that the approach to build a Tabs interface, while understanding, was not clean at all. I was having in the very same place business logic, views, fragments and adapters.
+## The problem
+As a newcomer, I found that the approach to build a Tabs interface, while understanding, was not clean at all. I was having in the very same place business logic, views, fragments and adapters.
 
 This is the original code: 
 
 ```java
 ```
 
+## The solution: MVP
 After understanding how it works I went for the refactoring to MVP.  MVP approach offers very interesting benefits:
 
 - Provides a clear separation of UI and business logic.
